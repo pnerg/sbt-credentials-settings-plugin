@@ -70,7 +70,7 @@ object CredentialSettings {
       case _ => Nil
     }
   }
-
+  
   /**
     * Returns the credentials to use when deploying the artifact to the repository.
     *
