@@ -15,6 +15,7 @@
   */
 package org.dmonix.sbt
 
+import sbt._
 import sbt.Keys._
 import sbt.{AutoPlugin, PluginTrigger}
 
@@ -27,6 +28,6 @@ object CredentialSettingPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
   override lazy val projectSettings = Seq(
-    credentials := CredentialSettings.publishCredentials
+    credentials := CredentialSettings.publishCredentials((Path.userHome / ".ivy2"))
   )
 }

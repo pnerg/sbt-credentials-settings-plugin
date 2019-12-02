@@ -14,3 +14,11 @@ scalacOptions := Seq("-feature",
   "-unchecked",
   "-deprecation",
   "-encoding", "utf8")
+
+val `specs-core-version` = "4.3.4"
+libraryDependencies ++= Seq(
+  "org.specs2" %% "specs2-core" % `specs-core-version` % "test",
+  "org.specs2" %% "specs2-mock" % `specs-core-version` % "test",
+  "org.specs2" %% "specs2-junit" % `specs-core-version` % "test",
+  "org.specs2" %% "specs2-matcher-extra" % `specs-core-version` % "test"
+)
