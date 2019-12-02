@@ -80,7 +80,6 @@ object CredentialSettings {
     * @return A sequence with the credentials to use
     */
   private def parseFile(credentialsFile:File): Option[Credentials] = {
-    println("read : "+credentialsFile.getCanonicalPath)
     val properties = new Properties()
     properties.load(new FileInputStream(credentialsFile))
     
