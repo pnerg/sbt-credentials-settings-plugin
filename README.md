@@ -1,3 +1,7 @@
+![Build & Test](https://github.com/pnerg/sbt-credentials-settings-plugin/workflows/Build%20&%20Test/badge.svg) 
+[![codecov](https://codecov.io/gh/pnerg/sbt-credentials-settings-plugin/branch/master/graph/badge.svg?token=qHGsIGxheH)](https://codecov.io/gh/pnerg/sbt-credentials-settings-plugin)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dmonix.sbt/sbt-credentials-settings-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.dmonix.sbt/sbt-credentials-settings-plugin)
+
 # SBT  Credentials Settings Plugin
 SBT plugin for settings the credentials needed to push to a binary repository
 
