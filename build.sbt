@@ -5,7 +5,7 @@ version := "1.0.0"
 sbtPlugin := true
 
 scalaVersion := "2.12.12"
-crossSbtVersions := Seq("1.2.8")
+crossSbtVersions := Seq("1.2.8", "1.3.13")
 
 scalacOptions := Seq("-feature",
   "-language:postfixOps",
