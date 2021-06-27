@@ -14,7 +14,7 @@ scalacOptions := Seq("-feature",
   "-deprecation",
   "-encoding", "utf8")
 
-val `specs-core-version` = "4.12.0"
+val `specs-core-version` = "4.12.2"
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % `specs-core-version` % "test",
   "org.specs2" %% "specs2-mock" % `specs-core-version` % "test",
