@@ -16,8 +16,9 @@
 package org.dmonix.sbt
 
 
-import java.io.File
+import org.specs2.matcher.{Matcher, ValueCheck}
 
+import java.io.File
 import org.specs2.mutable.Specification
 import sbt.librarymanagement.ivy.DirectCredentials
 
@@ -40,33 +41,27 @@ class CredentialSettingsSpec extends Specification {
       credentials must beEmpty
     }
     
-    "shall yield a for directory with only one file" >> {
+    "shall yield a list with one for directory with only one file" >> {
       val file = new File("src/test/resources/dir1")
-      val credentials = CredentialSettings.publishCredentials(file)
-      credentials.size === 1
-      val creds = credentials.head.asInstanceOf[DirectCredentials]
-      creds.realm === "Sonatype Nexus Repository Manager"
-      creds.host === "nexus.domain.com"
-      creds.userName === "some-user"
-      creds.passwd === "oh-so-secret"
+      val credentials = CredentialSettings.publishCredentials(file).map(_.asInstanceOf[DirectCredentials])
+      credentials must contain(exactly(equal("Sonatype Nexus Repository Manager", "nexus.domain.com", "some-user", "oh-so-secret")))
     }
 
-    "shall yield a for directory with multiple files" >> {
+    "shall yield a list with multiple for directory with multiple files" >> {
       val file = new File("src/test/resources/dir2")
-      val credentials = CredentialSettings.publishCredentials(file)
-      credentials.size === 2
-      val creds = credentials.head.asInstanceOf[DirectCredentials]
-      creds.realm === "Sonatype Nexus Repository Manager"
-      creds.host === "oss.sonatype.org"
-      creds.userName === "secret-agent"
-      creds.passwd === "wont-tell-you"
-
-      val creds2 = credentials.tail.head.asInstanceOf[DirectCredentials]
-      creds2.realm === "Sonatype Nexus Repository Manager"
-      creds2.host === "nexus.domain.com"
-      creds2.userName === "some-user"
-      creds2.passwd === "oh-so-secret"
-    }    
+      val credentials = CredentialSettings.publishCredentials(file).map(_.asInstanceOf[DirectCredentials])
+      credentials must contain(exactly(
+        equal("Sonatype Nexus Repository Manager", "nexus.domain.com", "some-user", "oh-so-secret"),
+        equal("Sonatype Nexus Repository Manager", "oss.sonatype.org", "secret-agent", "wont-tell-you")
+      ))
+    }
   }
 
+  private def equal(realm:String, host:String, user:String, psw:String):Matcher[DirectCredentials] = {
+    creds: DirectCredentials =>
+      creds.realm === realm
+      creds.host === host
+      creds.userName === user
+      creds.passwd === psw
+  }
 }
