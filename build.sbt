@@ -4,7 +4,7 @@ version := "1.0.0"
 
 sbtPlugin := true
 
-scalaVersion := "2.12.12"
+scalaVersion := "2.12.15"
 crossSbtVersions := Seq("1.2.8", "1.3.13")
 
 scalacOptions := Seq("-feature",
