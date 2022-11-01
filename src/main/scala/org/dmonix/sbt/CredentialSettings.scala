@@ -39,6 +39,15 @@ import java.util.Properties
   * @author Peter Nerg
   */
 object CredentialSettings {
+
+  val ENV_REALM = "CREDENTIAL_REALM"
+  val ENV_HOST = "CREDENTIAL_HOST"
+  val ENV_USER =  "CREDENTIAL_USER"
+  val ENV_PASSWORD = "CREDENTIAL_PASSWORD"
+
+  //matches any '${NAME}' pattern
+  private val regex = raw"(\$$\{\w+\})".r
+
   /**
     * Returns the credentials to use when deploying the artifact to the repository.
     *
@@ -50,6 +59,7 @@ object CredentialSettings {
     * credentials ++= publishCredentials
     * }}}
     * @return A sequence with the credentials to use
+    * @since 1.0
     */
   def publishCredentials(dir:File): Seq[Credentials] = {
     if(dir.isDirectory) {
@@ -64,7 +74,31 @@ object CredentialSettings {
       Nil
     }
   }
-  
+
+  /**
+    * Generates a sequence with a single Credential value if certain ENV/sys.props are set.
+    * @return
+    * @since 1.1
+    */
+  def publishCredentialsFromEnv():Seq[Credentials] = publishCredentialsFromEnv(ENV_REALM, ENV_HOST, ENV_USER, ENV_PASSWORD)
+
+  /**
+    * Generates a sequence with a single Credential value if provided ENV/sys.props are set.
+    *
+    * @return
+    * @since 1.1
+    */
+  def publishCredentialsFromEnv(realmName:String, hostName:String, userName:String, passwordName:String): Seq[Credentials] = {
+    Seq(for {
+      realm <- envOrProp(realmName)
+      host <- envOrProp(hostName)
+      user <- envOrProp(userName)
+      psw <- envOrProp(passwordName)
+    } yield {
+      Credentials(realm, host, user, psw)
+    }).flatten
+  }
+
   /**
     * Returns the credentials to use when deploying the artifact to the repository.
     *
@@ -84,12 +118,32 @@ object CredentialSettings {
     properties.load(new FileInputStream(credentialsFile))
     
     for {
-      realm <- Option(properties.getProperty("realm"))
-      host <- Option(properties.getProperty("host"))
-      user <- Option(properties.getProperty("user"))
-      psw <- Option(properties.getProperty("password"))
+      realm <- Option(properties.getProperty("realm")).map(replaceEnvVar)
+      host <- Option(properties.getProperty("host")).map(replaceEnvVar)
+      user <- Option(properties.getProperty("user")).map(replaceEnvVar)
+      psw <- Option(properties.getProperty("password")).map(replaceEnvVar)
     } yield {
       Credentials(realm, host, user, psw)
     }
   }
+
+  private[sbt] def replaceEnvVar(string:String):String = {
+    regex.findAllMatchIn(string)
+      .map(m => string.substring(m.start+2,m.end-1)) //finds all ${NAME} in the string and extracts only 'NAME'
+      .map(envOrPropElseFail) //finds the ENV/sys.prop with the corresponding name
+      .foldLeft(string){(acc,v) =>
+        //finds and replaces the ${NAME} with the value of the env/sys.prop
+        acc.replaceAll(raw"\$$\{"+v._1+"}", v._2)
+      }
+  }
+
+  private def envOrPropElseFail(name:String):(String,String) = {
+    (
+      name,
+      envOrProp(name).getOrElse(sys.error(s"Could not resolve ENV or sys prop with the name $name"))
+    )
+  }
+
+  private def envOrProp(name: String): Option[String] = sys.env.get(name).orElse(sys.props.get(name))
+
 }

@@ -1,11 +1,13 @@
 name := "sbt-credentials-settings-plugin"
 organization := "org.dmonix.sbt"
-version := "1.0.0"
+version := "1.1.0"
 
 sbtPlugin := true
 
 scalaVersion := "2.12.12"
 crossSbtVersions := Seq("1.2.8", "1.3.13")
+
+parallelExecution in Test := false
 
 scalacOptions := Seq("-feature",
   "-language:postfixOps",
