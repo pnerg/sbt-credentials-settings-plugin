@@ -28,6 +28,6 @@ object CredentialSettingPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
   override lazy val projectSettings = Seq(
-    credentials := CredentialSettings.publishCredentials((Path.userHome / ".ivy2"))
+    credentials := CredentialSettings.publishCredentials(Path.userHome / ".ivy2") ++ CredentialSettings.publishCredentialsFromEnv()
   )
 }

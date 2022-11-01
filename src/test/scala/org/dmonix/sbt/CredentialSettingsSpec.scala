@@ -16,17 +16,18 @@
 package org.dmonix.sbt
 
 
-import org.specs2.matcher.{Matcher, ValueCheck}
-
-import java.io.File
+import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 import sbt.librarymanagement.ivy.DirectCredentials
+
+import java.io.File
 
 /**
   * Tests for the CredentialSettings class
   * @author Peter Nerg
   */
 class CredentialSettingsSpec extends Specification {
+  sequential
 
   "parsing a dir" >> {
     "shall yield an empty list for an invalid dir" >> {
@@ -54,6 +55,41 @@ class CredentialSettingsSpec extends Specification {
         equal("Sonatype Nexus Repository Manager", "nexus.domain.com", "some-user", "oh-so-secret"),
         equal("Sonatype Nexus Repository Manager", "oss.sonatype.org", "secret-agent", "wont-tell-you")
       ))
+    }
+  }
+
+  "replaceEnvVar" >> {
+    System.setProperty("FOO", "BAR")
+    System.setProperty("USR", "Vader")
+    "shall replace the entire string if it is a pattern" >> {
+      CredentialSettings.replaceEnvVar("""${FOO}""") === "BAR"
+    }
+    "shall replace all occurrences of the pattern in the string" >> {
+      CredentialSettings.replaceEnvVar("""${FOO}:${FOO}""") === "BAR:BAR"
+    }
+    "shall replace different patterns in the string" >> {
+      CredentialSettings.replaceEnvVar("""${FOO}:${USR}""") === "BAR:Vader"
+    }
+    "shall partially replace the string if only a part is a pattern" >> {
+      CredentialSettings.replaceEnvVar("""Insert ${FOO} here""") === "Insert BAR here"
+    }
+  }
+
+  "publishCredentialsFromEnv" >> {
+    "shall return empty sequence in case not all all ENV/sys.props are set" >> {
+      CredentialSettings.publishCredentialsFromEnv() must beEmpty
+    }
+    "shall create a sequence with single credential in case all ENV/sys.props are set" >> {
+      val realmName = "TEST_CREDENTIAL_REALM"
+      val hostName = "TEST_CREDENTIAL_HOST"
+      val userName = "TEST_CREDENTIAL_USER"
+      val passwordName = "TEST_CREDENTIAL_PASSWORD"
+      System.setProperty(realmName, "Sonatype Nexus Repository Manager")
+      System.setProperty(hostName, "nexus.domain.com")
+      System.setProperty(userName, "some-user")
+      System.setProperty(passwordName, "oh-so-secret")
+      val credentials = CredentialSettings.publishCredentialsFromEnv(realmName, hostName, userName, passwordName).map(_.asInstanceOf[DirectCredentials])
+      credentials must contain(exactly(equal("Sonatype Nexus Repository Manager", "nexus.domain.com", "some-user", "oh-so-secret")))
     }
   }
 
