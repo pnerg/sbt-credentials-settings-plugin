@@ -4,7 +4,7 @@ version := "1.1.0"
 
 sbtPlugin := true
 
-scalaVersion := "2.12.12"
+scalaVersion := "2.12.17"
 crossSbtVersions := Seq("1.2.8", "1.3.13")
 
 parallelExecution in Test := false
